@@ -1,4 +1,4 @@
-const GAS_DEPLOY_URL = 'https://script.google.com/macros/s/AKfycbwy4djH2RHuXl277UzXj7_K0c0RdUVadTEUHYkt9H3vMlkymKCBgGcRJGJBy16bRdqAMQ/exec';
+const GAS_DEPLOY_URL = import.meta.env.VITE_GAS_DEPLOY_URL;
 
 // 通用的 API 呼叫函式
 export async function fetchGasApi(action, payload = {}) {
