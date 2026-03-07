@@ -1,0 +1,12 @@
+/* Reset Vue scaffold defaults — handled entirely by App.vue */
+#app {
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  font-weight: normal;
+}
+
+a {
+  text-decoration: none;
+  transition: 0.3s;
+}

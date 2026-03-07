@@ -1,0 +1,11 @@
+/* Minimal reset — styling handled entirely by App.vue */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+body {
+  min-height: 100vh;
+}
