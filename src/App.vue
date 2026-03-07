@@ -9,6 +9,8 @@ const isAdminPath = computed(() => window.location.pathname.startsWith('/admin')
 const isSuccessPath = computed(() => window.location.pathname.startsWith('/success'));
 const { currentUser, login, register, logout } = useAuth();
 
+const siteName = import.meta.env.VITE_SITE_NAME || 'DRIP';
+
 // 會員驗證專用
 const authEmail = ref('');
 const authPassword = ref('');
@@ -208,7 +210,7 @@ onMounted(() => {
       <nav class="navbar" id="main-nav">
         <a href="/" class="brand">
           <span class="brand-icon">◉</span>
-          <span class="brand-text">DRIP<span class="brand-dot">.</span></span>
+          <span class="brand-text">{{ siteName }}<span class="brand-dot">.</span></span>
         </a>
         <div class="nav-center">
           <a href="#products-section" class="nav-link">精选</a>
@@ -319,7 +321,7 @@ onMounted(() => {
                 />
               </div>
               <div class="detail-content">
-                <p class="detail-eyebrow">DRIP. SPECIALTY</p>
+                <p class="detail-eyebrow">{{ siteName }}. SPECIALTY</p>
                 <h2 class="detail-name">{{ selectedProduct.name }}</h2>
                 <p class="detail-price">NT$ {{ selectedProduct.price }}</p>
                 <div class="detail-divider"></div>
@@ -352,10 +354,10 @@ onMounted(() => {
           <div class="detail-modal text-modal">
             <button class="detail-close" @click="showAboutModal = false">✕</button>
             <div class="text-modal-content">
-              <p class="detail-eyebrow">DRIP. SPECIALTY</p>
+              <p class="detail-eyebrow">{{ siteName }}. SPECIALTY</p>
               <h2 class="detail-name">關於我們</h2>
               <div class="detail-divider"></div>
-              <p>我們相信，每一杯好咖啡，都是一段值得細細品味的旅程。從尋豆、烘焙到包裝，DRIP. 致力於將世界各地的莊園級風味，原封不動地交到您手中。</p>
+              <p>我們相信，每一杯好咖啡，都是一段值得細細品味的旅程。從尋豆、烘焙到包裝，{{ siteName }}. 致力於將世界各地的莊園級風味，原封不動地交到您手中。</p>
               <div style="display:flex; justify-content:space-around; margin-top:30px; text-align:center;">
                 <div>
                   <div style="font-size:1.8rem; font-weight:bold; color:var(--c-accent-l); margin-bottom:5px;">12+</div>
@@ -383,7 +385,7 @@ onMounted(() => {
           <div class="detail-modal text-modal">
             <button class="detail-close" @click="showReturnsModal = false">✕</button>
             <div class="text-modal-content">
-              <p class="detail-eyebrow">DRIP. SPECIALTY</p>
+              <p class="detail-eyebrow">{{ siteName }}. SPECIALTY</p>
               <h2 class="detail-name">退換貨政策</h2>
               <div class="detail-divider"></div>
               <p>我們致力於提供最高品質的精品咖啡。如果您收到商品後發現有任何瑕疵或寄送錯誤，請在收到商品後的 7 天內與我們聯繫。</p>
@@ -405,10 +407,10 @@ onMounted(() => {
           <div class="detail-modal text-modal">
             <button class="detail-close" @click="showContactModal = false">✕</button>
             <div class="text-modal-content">
-              <p class="detail-eyebrow">DRIP. SPECIALTY</p>
+              <p class="detail-eyebrow">{{ siteName }}. SPECIALTY</p>
               <h2 class="detail-name">聯絡我們</h2>
               <div class="detail-divider"></div>
-              <p>有任何問題嗎？我們很樂意為您解答。您可以透過以下方式聯繫 DRIP 客服團隊：</p>
+              <p>有任何問題嗎？我們很樂意為您解答。您可以透過以下方式聯繫 {{ siteName }} 客服團隊：</p>
               <div style="margin-top:30px;">
                 <p><strong>客服信箱：</strong><br/>support@drip-specialty.com</p>
                 <div class="detail-divider" style="margin: 15px 0;"></div>
@@ -497,9 +499,9 @@ onMounted(() => {
       <footer class="site-footer">
         <div class="footer-inner">
           <div class="footer-brand">
-            <span class="brand-icon">◉</span> DRIP<span class="brand-dot">.</span>
+            <span class="brand-icon">◉</span> {{ siteName }}<span class="brand-dot">.</span>
           </div>
-          <p class="footer-copy">© 2024 DRIP — 精品咖啡，匠心呈獻</p>
+          <p class="footer-copy">© 2024 {{ siteName }} — 精品咖啡，匠心呈獻</p>
           <div class="footer-links">
             <a href="#">隱私政策</a>
             <a href="#">退換貨</a>
