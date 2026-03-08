@@ -199,7 +199,7 @@ onMounted(() => {
         <h2>感謝您的購買</h2>
         <p>我們已經收到您的付款，<br/>您的精品咖啡將在 1-3 天內送達。</p>
         <img :src="getAssetUrl('success.png')" alt="成功" class="success-img" />
-        <a href="/" class="btn-back">繼續探索</a>
+        <a :href="getAssetUrl('')" class="btn-back">繼續探索</a>
       </div>
     </div>
 
@@ -210,7 +210,7 @@ onMounted(() => {
 
       <!-- Navbar -->
       <nav class="navbar" id="main-nav">
-        <a href="/" class="brand">
+        <a :href="getAssetUrl('')" class="brand">
           <span class="brand-icon">◉</span>
           <span class="brand-text">{{ siteName }}<span class="brand-dot">.</span></span>
         </a>
