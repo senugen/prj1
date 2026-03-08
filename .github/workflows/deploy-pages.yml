@@ -35,7 +35,7 @@ jobs:
         run: npm ci
 
       - name: Build project
-        run: npm run build -- --base=/${{ github.event.repository.name }}/
+        run: npm run build
         env:
           VITE_GAS_DEPLOY_URL: ${{ secrets.VITE_GAS_DEPLOY_URL }}
           VITE_SITE_NAME: ${{ secrets.VITE_SITE_NAME }}
