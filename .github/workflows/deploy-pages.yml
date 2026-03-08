@@ -40,6 +40,9 @@ jobs:
           VITE_GAS_DEPLOY_URL: ${{ secrets.VITE_GAS_DEPLOY_URL }}
           VITE_SITE_NAME: ${{ secrets.VITE_SITE_NAME }}
 
+      - name: Copy index.html to 404.html for SPA routing
+        run: cp dist/index.html dist/404.html
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
