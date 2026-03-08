@@ -213,7 +213,7 @@ onMounted(() => {
           <span class="brand-text">{{ siteName }}<span class="brand-dot">.</span></span>
         </a>
         <div class="nav-center">
-          <a href="#products-section" class="nav-link">精选</a>
+          <a href="#products-section" class="nav-link">精選</a>
           <a href="#" @click.prevent="showAboutModal = true" class="nav-link">關於</a>
           <a href="#" @click.prevent="showReturnsModal = true" class="nav-link">退換貨</a>
           <a href="#" @click.prevent="showContactModal = true" class="nav-link">聯絡我們</a>
