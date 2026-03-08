@@ -155,7 +155,7 @@ const handleCheckout = async () => {
         name: shippingName.value,
         address: shippingAddress.value
       },
-      client_base_url: window.location.origin
+      client_base_url: window.location.origin + window.location.pathname.split('/').slice(0, -1).join('/') || window.location.origin
     };
     const orderData = await ordersApi.checkout(payload);
     message.value = `訂單 ${orderData.order_id} 建立成功，準備跳轉綠界...`;
