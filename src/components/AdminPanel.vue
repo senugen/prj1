@@ -43,8 +43,8 @@ const filteredOrders = computed(() => {
     const amount = String(o.total_amount);
     const status = o.status === 'pending' ? '待付款' : (o.status === 'paid' ? '已付款' : (o.status === 'shipped' ? '已出貨' : o.status));
     const time = new Date(o.created_at).toLocaleString();
-    const ecpay = (o.ecpay_trade_no || '').toLowerCase();
-    const orderId = (o.order_id || '').toLowerCase();
+    const ecpay = String(o.ecpay_trade_no || '').toLowerCase();
+    const orderId = String(o.order_id || '').toLowerCase();
     return email.includes(q) || items.includes(q) || shipping.includes(q) ||
            amount.includes(q) || status.includes(q) || time.includes(q) ||
            ecpay.includes(q) || orderId.includes(q);
@@ -102,6 +102,9 @@ const switchTab = (tab) => {
 onMounted(() => {
   newProduct.value.product_id = `P${Date.now().toString().slice(-4)}`;
   fetchProducts();
+  // Admin 面板覆蓋全域 dark theme
+  document.body.style.background = '#f9f9f9';
+  document.body.style.color = '#333';
 });
 
 const formatItemsSafe = (itemsStr) => {
@@ -345,8 +348,10 @@ th { background: #f2f2f2; font-weight: bold; white-space: nowrap; }
 .badge.paid { background: #2ecc71; color: white; }
 .badge.shipped { background: #3498db; color: white; }
 
-.ecpay-no { font-family: monospace; font-size: 0.85rem; color: #7f8c8d; }
-.member-email { font-size: 0.85rem; color: #2980b9; }
+.ecpay-no { font-family: monospace; font-size: 0.85rem; color: #7f8c8d; white-space: nowrap; }
+.member-email { font-size: 0.85rem; color: #2980b9; white-space: nowrap; }
+
+.orders-table td:first-child { white-space: nowrap; font-size: 0.8rem; }
 
 .search-bar {
   display: flex;
