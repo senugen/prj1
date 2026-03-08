@@ -114,3 +114,29 @@
    * **維度**：`status`。
    * **指標**：`Record Count`。可判斷 `paid` 與 `pending` 比例。
 4. 面板上方可新增一個 **「日期範圍控制項」**，隨時拖曳查詢本月或本季營收。
+
+---
+
+## Phase 5：自動部署至 GitHub Pages
+
+本專案已透過 GitHub Actions 準備好自動部署腳本（位於 `.github/workflows/deploy-pages.yml`），每次推播 (Push) 到 `main` 或 `master` 分支時，系統將自動打包並發布至 GitHub Pages。
+
+### 步驟 1：建立環境變數 (Secrets)
+因為敏感資訊及環境變數不應提交至版本控制，你需要前往 Github 專案的 **Settings** -> **Secrets and variables** -> **Actions**。
+點擊 **New repository secret** 依序建立以下參數（參考專案根目錄的 `.env.example`）：
+1. **`VITE_GAS_DEPLOY_URL`**: 填寫你的 GAS Web App URL。
+2. **`VITE_SITE_NAME`**: 填寫網站名稱（如：`珈琲攝小舖`）。
+
+### 步驟 2：開啟 GitHub Pages 的 Action 部署
+前往 Github 專案的 **Settings** -> **Pages**：
+找到 **Build and deployment** 區塊，將 **Source** 選項切換為 **`GitHub Actions`**。
+
+### 步驟 3：調整 `vite.config.js` 網站路徑 (若部署於次目錄)
+如果你的 Github Pages 網址是 `https://<username>.github.io/<repo-name>/` 的格式，請務必開啟 `vite.config.js`，加入 `base` 屬性：
+```javascript
+export default defineConfig({
+  base: '/<你的repo名稱>/', 
+  // ... 其他設定
+})
+```
+設定完畢後，執行推送指令，GitHub Action 就會幫你把網站建置並丟到 Pages 空間了！
