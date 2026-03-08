@@ -3,15 +3,47 @@ const SHEET_ID = 'YOUR_GOOGLE_SHEET_ID'; // 請保留你真實的 ID
 // ==========================================
 // 綠界金流設定 (此為官方測試環境金鑰)
 // ==========================================
-const ECPAY_HASH_KEY = '5294y06JbISpM5x9';
-const ECPAY_HASH_IV = 'v77hoKGq4kWxNNIS';
-const ECPAY_MERCHANT_ID = '2000132';
+const ECPAY_HASH_KEY = 'pwFHCqoQZGmho4w6';
+const ECPAY_HASH_IV = 'EkRm7iFT261dpevs';
+const ECPAY_MERCHANT_ID = '3002607';
 const ECPAY_API_URL = 'https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5';
+
+//const ECPAY_HASH_KEY = '5294y06JbISpM5x9';
+//const ECPAY_HASH_IV = 'v77hoKGq4kWxNNIS';尸
+//const ECPAY_MERCHANT_ID = '2000132';
+//const ECPAY_API_URL = 'https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5';
+
+
+// ==========================================
+// 處理 GET 請求 (綠界付款後 redirect)
+// ==========================================
+function doGet(e) {
+  // 綠界付完款後，OrderResultURL 會 POST 到 GAS，
+  // 但 handleEcpayOrderResult 會回傳 HTML redirect（見下方）。
+  // 若使用者直接訪問 GAS URL 帶 redirect 參數，則導回前端 success 頁
+  const redirectUrl = e.parameter.redirect || 'https://senugen.github.io/prj1/success';
+  return HtmlService.createHtmlOutput(
+    '<html><head><meta http-equiv="refresh" content="0;url=' + redirectUrl + '"></head>' +
+    '<body>付款完成，正在跳轉...</body></html>'
+  );
+}
 
 function doPost(e) {
   try {
     // 判斷是否為「綠界 Webhook」回傳 (綠界會直接 POST form-data)
     if (e.postData.type === 'application/x-www-form-urlencoded') {
+      // 檢查是否有 RtnCode (綠界付款結果回傳)
+      if (e.parameter.RtnCode) {
+        // 先處理 Webhook 更新訂單狀態
+        handleEcpayWebhook(e.parameter);
+        // 然後 redirect 用戶到 success 頁面 (用 HTML redirect 因為這是 POST)
+        const redirectUrl = e.parameter.redirect || 'https://senugen.github.io/prj1/success';
+        return HtmlService.createHtmlOutput(
+          '<html><head><meta http-equiv="refresh" content="0;url=' + redirectUrl + '"></head>' +
+          '<body>付款完成，正在跳轉...</body></html>'
+        );
+      }
+      // 原本的 Webhook (ReturnURL 背景通知)
       return handleEcpayWebhook(e.parameter);
     }
 
@@ -105,6 +137,9 @@ function processCheckout(payload) {
   addRecord('Orders', orderRecord);
 
   // 2. 準備傳給綠界的參數字典
+  // 取得 GAS Web App URL (部署後的 URL，用於接收綠界回傳)
+  const gasWebAppUrl = ScriptApp.getService().getUrl();
+
   let ecpayParams = {
     MerchantID: ECPAY_MERCHANT_ID,
     MerchantTradeNo: order_id,
@@ -113,9 +148,9 @@ function processCheckout(payload) {
     TotalAmount: total_amount.toString(),
     TradeDesc: '濾掛咖啡微型電商訂單',
     ItemName: '濾掛咖啡商品一批',
-    ReturnURL: 'YOUR_GAS_WEBAPP_URL_HERE', // TODO: 填入你 GAS 部署出來的 Web App URL (作為 Webhook)
-    ClientBackURL: successURL,     // 綠界頁面上「返回商店」按鈕會導向這裡
-    OrderResultURL: successURL,    // 付款完成後綠界自動跳轉到這裡
+    ReturnURL: gasWebAppUrl,                                          // 綠界背景 Webhook 通知
+    ClientBackURL: successURL,                                         // 綠界頁面上「返回商店」按鈕
+    OrderResultURL: gasWebAppUrl + '?redirect=' + encodeURIComponent(successURL),  // 付款後 POST 到 GAS，GAS 再 redirect 回 success
     ChoosePayment: 'Credit',
     EncryptType: '1',
   };

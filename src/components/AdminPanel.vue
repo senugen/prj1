@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { productsApi, membersApi } from '../utils/api';
 import { ordersApi } from '../utils/ordersApi';
 
@@ -8,6 +8,7 @@ const products = ref([]);
 const orders = ref([]);
 const members = ref([]);
 const loading = ref(false);
+const orderSearch = ref('');
 
 // 商品表單
 const newProduct = ref({ product_id: '', name: '', price: 0, stock: 0, status: 'active', image_url: '', description: '' });
@@ -22,8 +23,33 @@ const fetchOrders = async () => {
   loading.value = true;
   orders.value = await ordersApi.getAll();
   orders.value.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  // 同時載入會員資料以便顯示帳號
+  if (!members.value.length) members.value = await membersApi.getAll();
   loading.value = false;
 };
+
+const getMemberEmail = (uid) => {
+  const m = members.value.find(m => m.uid === uid);
+  return m ? m.email : uid || '-';
+};
+
+const filteredOrders = computed(() => {
+  const q = orderSearch.value.trim().toLowerCase();
+  if (!q) return orders.value;
+  return orders.value.filter(o => {
+    const email = getMemberEmail(o.uid).toLowerCase();
+    const items = formatItemsSafe(o.items).replace(/<br>/g, ' ').toLowerCase();
+    const shipping = formatShippingSafe(o.shipping_info).replace(/<[^>]*>/g, ' ').toLowerCase();
+    const amount = String(o.total_amount);
+    const status = o.status === 'pending' ? '待付款' : (o.status === 'paid' ? '已付款' : (o.status === 'shipped' ? '已出貨' : o.status));
+    const time = new Date(o.created_at).toLocaleString();
+    const ecpay = (o.ecpay_trade_no || '').toLowerCase();
+    const orderId = (o.order_id || '').toLowerCase();
+    return email.includes(q) || items.includes(q) || shipping.includes(q) ||
+           amount.includes(q) || status.includes(q) || time.includes(q) ||
+           ecpay.includes(q) || orderId.includes(q);
+  });
+});
 
 const fetchMembers = async () => {
   loading.value = true;
@@ -181,12 +207,18 @@ const formatShippingSafe = (infoStr) => {
 
       <!-- 訂單管理區 -->
       <div v-if="currentTab === 'orders'" class="tab-content">
-        <h3>訂單總覽 (由 Looker Studio 負責進階分析，此處僅供檢閱)</h3>
+        <h3>訂單總覽</h3>
+        <div class="search-bar">
+          <input v-model="orderSearch" placeholder="🔍 搜尋訂單（帳號、收件人、金額、狀態、綠界憑證...）" class="search-input" />
+          <span v-if="orderSearch" class="search-clear" @click="orderSearch = ''">✕</span>
+          <span class="search-count">{{ filteredOrders.length }} / {{ orders.length }} 筆</span>
+        </div>
         <table>
-          <thead><tr><th>訂單編號</th><th>購買明細</th><th>收件人/地址</th><th>金額</th><th>狀態</th><th>時間</th><th>綠界憑證</th></tr></thead>
+          <thead><tr><th>訂單編號</th><th>會員帳號</th><th>購買明細</th><th>收件人/地址</th><th>金額</th><th>狀態</th><th>時間</th><th>綠界憑證</th></tr></thead>
           <tbody>
-            <tr v-for="o in orders" :key="o.order_id">
+            <tr v-for="o in filteredOrders" :key="o.order_id">
               <td>{{ o.order_id }}</td>
+              <td class="member-email">{{ getMemberEmail(o.uid) }}</td>
               <td v-html="formatItemsSafe(o.items)" style="line-height:1.5; font-size:0.9rem"></td>
               <td v-html="formatShippingSafe(o.shipping_info)"></td>
               <td>${{ o.total_amount }}</td>
@@ -197,6 +229,9 @@ const formatShippingSafe = (infoStr) => {
               </td>
               <td>{{ new Date(o.created_at).toLocaleString() }}</td>
               <td class="ecpay-no">{{ o.ecpay_trade_no || '無' }}</td>
+            </tr>
+            <tr v-if="filteredOrders.length === 0">
+              <td colspan="8" style="text-align:center; color:#999; padding:2rem;">找不到符合條件的訂單</td>
             </tr>
           </tbody>
         </table>
@@ -298,4 +333,39 @@ th { background: #f2f2f2; font-weight: bold; }
 .badge.shipped { background: #3498db; color: white; }
 
 .ecpay-no { font-family: monospace; font-size: 0.85rem; color: #7f8c8d; }
+.member-email { font-size: 0.85rem; color: #2980b9; }
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+  position: relative;
+}
+.search-input {
+  flex: 1;
+  padding: 0.6rem 2.2rem 0.6rem 0.8rem;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s;
+}
+.search-input:focus {
+  border-color: #3498db;
+  outline: none;
+}
+.search-clear {
+  position: absolute;
+  right: 100px;
+  cursor: pointer;
+  color: #999;
+  font-size: 1rem;
+  padding: 0.3rem;
+}
+.search-clear:hover { color: #e74c3c; }
+.search-count {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+  white-space: nowrap;
+}
 </style>
