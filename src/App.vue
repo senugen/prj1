@@ -10,6 +10,7 @@ const isSuccessPath = computed(() => window.location.pathname.startsWith('/succe
 const { currentUser, login, register, logout } = useAuth();
 
 const siteName = import.meta.env.VITE_SITE_NAME || 'DRIP';
+const getAssetUrl = (path) => import.meta.env.BASE_URL + path;
 
 // 會員驗證專用
 const authEmail = ref('');
@@ -196,7 +197,7 @@ onMounted(() => {
         </div>
         <h2>感謝您的購買</h2>
         <p>我們已經收到您的付款，<br/>您的精品咖啡將在 1-3 天內送達。</p>
-        <img src="/success.png" alt="成功" class="success-img" />
+        <img :src="getAssetUrl('success.png')" alt="成功" class="success-img" />
         <a href="/" class="btn-back">繼續探索</a>
       </div>
     </div>
@@ -236,7 +237,7 @@ onMounted(() => {
 
       <!-- Hero -->
       <section class="hero" id="hero-section">
-        <div class="hero-bg" style="background-image: url('/hero.png')"></div>
+        <div class="hero-bg" :style="{ backgroundImage: `url(${getAssetUrl('hero.png')})` }"></div>
         <div class="hero-overlay">
           <div class="hero-content" :class="{ visible: heroVisible }">
             <p class="hero-eyebrow">SPECIALTY COFFEE</p>
@@ -283,10 +284,10 @@ onMounted(() => {
           >
             <div class="product-img-wrap">
               <img
-                :src="p.image_url || '/product-default.png'"
+                :src="p.image_url || getAssetUrl('product-default.png')"
                 :alt="p.name"
                 class="product-img"
-                @error="(e) => e.target.src = '/product-default.png'"
+                @error="(e) => e.target.src = getAssetUrl('product-default.png')"
               />
               <div class="product-img-overlay">
                 <button @click="addToCart(p, $event)" class="btn-quick-add" :id="'add-' + p.product_id">
@@ -314,10 +315,10 @@ onMounted(() => {
             <div class="detail-layout">
               <div class="detail-img-wrap">
                 <img
-                  :src="selectedProduct.image_url || '/product-default.png'"
+                  :src="selectedProduct.image_url || getAssetUrl('product-default.png')"
                   :alt="selectedProduct.name"
                   class="detail-img"
-                  @error="(e) => e.target.src = '/product-default.png'"
+                  @error="(e) => e.target.src = getAssetUrl('product-default.png')"
                 />
               </div>
               <div class="detail-content">
@@ -439,7 +440,7 @@ onMounted(() => {
 
             <ul v-else class="cart-list">
               <li v-for="item in cart" :key="item.product_id" class="cart-item">
-                <img :src="item.image_url || '/product-default.png'" alt="" class="cart-item-img" @error="(e) => e.target.src = '/product-default.png'" />
+                <img :src="item.image_url || getAssetUrl('product-default.png')" alt="" class="cart-item-img" @error="(e) => e.target.src = getAssetUrl('product-default.png')" />
                 <div class="cart-item-detail">
                   <span class="cart-item-name">{{ item.name }}</span>
                   <span class="cart-item-unit">NT$ {{ item.price }}</span>
