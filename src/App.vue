@@ -5,8 +5,10 @@ import { ordersApi } from './utils/ordersApi';
 import AdminPanel from './components/AdminPanel.vue';
 import { useAuth } from './composables/useAuth';
 
-const isAdminPath = computed(() => window.location.pathname.startsWith('/admin'));
-const isSuccessPath = computed(() => window.location.pathname.startsWith('/success'));
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
+const getRelativePath = () => window.location.pathname.replace(basePath, '') || '/';
+const isAdminPath = computed(() => getRelativePath().startsWith('/admin'));
+const isSuccessPath = computed(() => getRelativePath().startsWith('/success'));
 const { currentUser, login, register, logout } = useAuth();
 
 const siteName = import.meta.env.VITE_SITE_NAME || 'DRIP';
