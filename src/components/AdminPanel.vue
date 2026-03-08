@@ -213,7 +213,17 @@ const formatShippingSafe = (infoStr) => {
           <span v-if="orderSearch" class="search-clear" @click="orderSearch = ''">✕</span>
           <span class="search-count">{{ filteredOrders.length }} / {{ orders.length }} 筆</span>
         </div>
-        <table>
+        <table class="orders-table">
+          <colgroup>
+            <col style="width: 14%"><!-- 訂單編號 -->
+            <col style="width: 14%"><!-- 會員帳號 -->
+            <col style="width: 16%"><!-- 購買明細 -->
+            <col style="width: 14%"><!-- 收件人/地址 -->
+            <col style="width: 6%"><!-- 金額 -->
+            <col style="width: 6%"><!-- 狀態 -->
+            <col style="width: 14%"><!-- 時間 -->
+            <col style="width: 16%"><!-- 綠界憑證 -->
+          </colgroup>
           <thead><tr><th>訂單編號</th><th>會員帳號</th><th>購買明細</th><th>收件人/地址</th><th>金額</th><th>狀態</th><th>時間</th><th>綠界憑證</th></tr></thead>
           <tbody>
             <tr v-for="o in filteredOrders" :key="o.order_id">
@@ -306,9 +316,9 @@ const formatShippingSafe = (infoStr) => {
 }
 .add-form input { padding: 0.5rem; border: 1px solid #ccc; flex: 1; }
 
-table { width: 100%; border-collapse: collapse; background: white; color: #333; }
-th, td { padding: 0.8rem; border: 1px solid #ddd; text-align: left; }
-th { background: #f2f2f2; font-weight: bold; }
+table { width: 100%; border-collapse: collapse; background: white; color: #333; table-layout: fixed; }
+th, td { padding: 0.8rem; border: 1px solid #ddd; text-align: left; word-wrap: break-word; }
+th { background: #f2f2f2; font-weight: bold; white-space: nowrap; }
 
 .edit-input {
   width: 100%;
@@ -349,10 +359,14 @@ th { background: #f2f2f2; font-weight: bold; }
   border-radius: 6px;
   font-size: 0.95rem;
   transition: border-color 0.2s;
+  background: #fff;
+  color: #333;
 }
+.search-input::placeholder { color: #999; }
 .search-input:focus {
   border-color: #3498db;
   outline: none;
+  color: #333;
 }
 .search-clear {
   position: absolute;
