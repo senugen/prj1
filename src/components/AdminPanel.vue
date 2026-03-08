@@ -2,6 +2,8 @@
 import { ref, computed, onMounted } from 'vue';
 import { productsApi, membersApi } from '../utils/api';
 import { ordersApi } from '../utils/ordersApi';
+import SalesAnalytics from './SalesAnalytics.vue';
+import SeoAnalytics from './SeoAnalytics.vue';
 
 const currentTab = ref('products'); // 'products', 'orders', 'members'
 const products = ref([]);
@@ -124,6 +126,8 @@ const switchTab = (tab) => {
   if (tab === 'products') fetchProducts();
   if (tab === 'orders') fetchOrders();
   if (tab === 'members') fetchMembers();
+  if (tab === 'analytics') { fetchOrders(); fetchProducts(); fetchMembers(); }
+  if (tab === 'seo') { fetchProducts(); }
 };
 
 onMounted(() => {
@@ -167,6 +171,8 @@ const formatShippingSafe = (infoStr) => {
         <li :class="{ active: currentTab === 'products' }" @click="switchTab('products')">商品管理</li>
         <li :class="{ active: currentTab === 'orders' }" @click="switchTab('orders')">訂單總覽</li>
         <li :class="{ active: currentTab === 'members' }" @click="switchTab('members')">會員列表</li>
+        <li :class="{ active: currentTab === 'analytics' }" @click="switchTab('analytics')">📊 銷售分析</li>
+        <li :class="{ active: currentTab === 'seo' }" @click="switchTab('seo')">🔍 SEO 分析</li>
       </ul>
     </div>
     
@@ -305,6 +311,18 @@ const formatShippingSafe = (infoStr) => {
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- 銷售分析 -->
+      <div v-if="currentTab === 'analytics'" class="tab-content">
+        <h3>📊 銷售分析儀表板</h3>
+        <SalesAnalytics :orders="orders" :products="products" :members="members" />
+      </div>
+
+      <!-- SEO 分析 -->
+      <div v-if="currentTab === 'seo'" class="tab-content">
+        <h3>🔍 SEO 編輯與分析</h3>
+        <SeoAnalytics :orders="orders" :products="products" />
       </div>
     </div>
   </div>
