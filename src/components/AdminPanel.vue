@@ -215,12 +215,12 @@ const formatShippingSafe = (infoStr) => {
         </div>
         <table class="orders-table">
           <colgroup>
-            <col style="width: 14%"><!-- 訂單編號 -->
-            <col style="width: 14%"><!-- 會員帳號 -->
-            <col style="width: 16%"><!-- 購買明細 -->
+            <col style="width: 13%"><!-- 訂單編號 -->
+            <col style="width: 13%"><!-- 會員帳號 -->
+            <col style="width: 15%"><!-- 購買明細 -->
             <col style="width: 14%"><!-- 收件人/地址 -->
-            <col style="width: 6%"><!-- 金額 -->
-            <col style="width: 6%"><!-- 狀態 -->
+            <col style="width: 7%"><!-- 金額 -->
+            <col style="width: 8%"><!-- 狀態 -->
             <col style="width: 14%"><!-- 時間 -->
             <col style="width: 16%"><!-- 綠界憑證 -->
           </colgroup>
@@ -270,10 +270,11 @@ const formatShippingSafe = (infoStr) => {
 <style scoped>
 .admin-panel {
   display: flex;
-  min-height: 80vh;
-  border-top: 2px solid #333;
-  margin-top: 2rem;
+  min-height: 100vh;
   font-family: Arial, sans-serif;
+  background: #f9f9f9;
+  position: relative;
+  z-index: 10;
 }
 .sidebar {
   width: 200px;
@@ -337,6 +338,8 @@ th { background: #f2f2f2; font-weight: bold; white-space: nowrap; }
   border-radius: 20px;
   font-size: 0.8rem;
   font-weight: bold;
+  white-space: nowrap;
+  display: inline-block;
 }
 .badge.pending { background: #f1c40f; color: #333; }
 .badge.paid { background: #2ecc71; color: white; }
