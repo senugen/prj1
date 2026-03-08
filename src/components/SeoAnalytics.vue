@@ -12,28 +12,46 @@ const seoDescription = ref('');
 const seoKeywords = ref('');
 const ogImage = ref('');
 
+const activeTitle = ref('');
+const activeDescription = ref('');
+const activeKeywords = ref('');
+const activeOgImage = ref('');
+
+const isCalculating = ref(false);
+const applyChanges = () => {
+  isCalculating.value = true;
+  setTimeout(() => {
+    activeTitle.value = seoTitle.value;
+    activeDescription.value = seoDescription.value;
+    activeKeywords.value = seoKeywords.value;
+    activeOgImage.value = ogImage.value;
+    isCalculating.value = false;
+  }, 400);
+};
+
 onMounted(() => {
   seoTitle.value = siteName.value + ' — 精品咖啡專賣';
   seoDescription.value = '嚴選世界各地精品咖啡豆，手工烘焙，新鮮直送。提供水洗、日曬、蜜處理等多種風味濾掛咖啡。';
   seoKeywords.value = '精品咖啡, 濾掛咖啡, 手沖咖啡, 咖啡豆, 單品咖啡, 耶加雪菲, 咖啡禮盒';
   ogImage.value = siteUrl.value + 'banner.webp';
+  applyChanges();
 });
 
 // ===== SEO 評分 =====
 const seoChecks = computed(() => {
   const checks = [];
   // Title
-  const tLen = seoTitle.value.length;
+  const tLen = activeTitle.value.length;
   checks.push({ name: '標題長度', pass: tLen >= 10 && tLen <= 60, tip: `${tLen} 字（建議 10~60）`, icon: '🏷️' });
-  checks.push({ name: '標題含品牌名', pass: seoTitle.value.includes(siteName.value), tip: seoTitle.value.includes(siteName.value) ? '✓ 含品牌名' : '建議加入品牌名', icon: '🔤' });
+  checks.push({ name: '標題含品牌名', pass: activeTitle.value.includes(siteName.value), tip: activeTitle.value.includes(siteName.value) ? '✓ 含品牌名' : '建議加入品牌名', icon: '🔤' });
   // Description
-  const dLen = seoDescription.value.length;
+  const dLen = activeDescription.value.length;
   checks.push({ name: '描述長度', pass: dLen >= 50 && dLen <= 160, tip: `${dLen} 字（建議 50~160）`, icon: '📝' });
   // Keywords
-  const kwCount = seoKeywords.value.split(',').filter(k => k.trim()).length;
+  const kwCount = activeKeywords.value.split(',').filter(k => k.trim()).length;
   checks.push({ name: '關鍵字數量', pass: kwCount >= 3 && kwCount <= 10, tip: `${kwCount} 個（建議 3~10）`, icon: '🔑' });
   // OG Image
-  checks.push({ name: 'OG 圖片', pass: !!ogImage.value, tip: ogImage.value ? '已設定' : '請設定社群分享圖', icon: '🖼️' });
+  checks.push({ name: 'OG 圖片', pass: !!activeOgImage.value, tip: activeOgImage.value ? '已設定' : '請設定社群分享圖', icon: '🖼️' });
   // URL structure
   checks.push({ name: 'URL 結構', pass: siteUrl.value.includes('https'), tip: siteUrl.value.includes('https') ? 'HTTPS ✓' : '建議使用 HTTPS', icon: '🔗' });
   // Product count
@@ -56,10 +74,10 @@ const scoreColor = computed(() => {
 
 // ===== 關鍵字分析 =====
 const keywordAnalysis = computed(() => {
-  const kws = seoKeywords.value.split(',').map(k => k.trim()).filter(k => k);
+  const kws = activeKeywords.value.split(',').map(k => k.trim()).filter(k => k);
   return kws.map(kw => {
-    const inTitle = seoTitle.value.includes(kw);
-    const inDesc = seoDescription.value.includes(kw);
+    const inTitle = activeTitle.value.includes(kw);
+    const inDesc = activeDescription.value.includes(kw);
     const productMatch = props.products?.filter(p => (p.name || '').includes(kw) || (p.description || '').includes(kw)).length || 0;
     return { keyword: kw, inTitle, inDesc, productMatch, score: (inTitle ? 30 : 0) + (inDesc ? 30 : 0) + Math.min(productMatch * 10, 40) };
   });
@@ -77,24 +95,24 @@ const perfMetrics = ref([
 // ===== 產生 meta tags =====
 const generatedMetaTags = computed(() => {
   return `<!-- Primary Meta Tags -->
-<title>${seoTitle.value}</title>
-<meta name="title" content="${seoTitle.value}">
-<meta name="description" content="${seoDescription.value}">
-<meta name="keywords" content="${seoKeywords.value}">
+<title>${activeTitle.value}</title>
+<meta name="title" content="${activeTitle.value}">
+<meta name="description" content="${activeDescription.value}">
+<meta name="keywords" content="${activeKeywords.value}">
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website">
 <meta property="og:url" content="${siteUrl.value}">
-<meta property="og:title" content="${seoTitle.value}">
-<meta property="og:description" content="${seoDescription.value}">
-<meta property="og:image" content="${ogImage.value}">
+<meta property="og:title" content="${activeTitle.value}">
+<meta property="og:description" content="${activeDescription.value}">
+<meta property="og:image" content="${activeOgImage.value}">
 
 <!-- Twitter -->
 <meta property="twitter:card" content="summary_large_image">
 <meta property="twitter:url" content="${siteUrl.value}">
-<meta property="twitter:title" content="${seoTitle.value}">
-<meta property="twitter:description" content="${seoDescription.value}">
-<meta property="twitter:image" content="${ogImage.value}">`;
+<meta property="twitter:title" content="${activeTitle.value}">
+<meta property="twitter:description" content="${activeDescription.value}">
+<meta property="twitter:image" content="${activeOgImage.value}">`;
 });
 
 const copied = ref(false);
@@ -110,7 +128,12 @@ const copyMeta = () => {
     <div class="seo-grid">
       <!-- Left: Editor -->
       <div class="seo-editor">
-        <h4>📄 SEO 設定編輯</h4>
+        <div class="editor-header">
+          <h4>📄 SEO 設定編輯</h4>
+          <button class="btn-calc" @click="applyChanges" :disabled="isCalculating">
+             {{ isCalculating ? '⏳ 計算中...' : '🔄 重新評分' }}
+          </button>
+        </div>
         <div class="form-group">
           <label>頁面標題 <span class="char-count" :class="{ warn: seoTitle.length > 60 }">{{ seoTitle.length }}/60</span></label>
           <input v-model="seoTitle" placeholder="頁面標題" class="seo-input" />
@@ -133,8 +156,8 @@ const copyMeta = () => {
           <h4>🔍 Google 搜尋預覽</h4>
           <div class="google-preview">
             <div class="gp-url">{{ siteUrl }}</div>
-            <div class="gp-title">{{ seoTitle || '未設定標題' }}</div>
-            <div class="gp-desc">{{ seoDescription || '未設定描述' }}</div>
+            <div class="gp-title">{{ activeTitle || '未設定標題' }}</div>
+            <div class="gp-desc">{{ activeDescription || '未設定描述' }}</div>
           </div>
         </div>
 
@@ -142,13 +165,13 @@ const copyMeta = () => {
         <div class="preview-section">
           <h4>📱 社群分享預覽</h4>
           <div class="social-preview">
-            <div class="sp-image" v-if="ogImage">
-              <img :src="ogImage" alt="OG Image" @error="$event.target.style.display='none'" />
+            <div class="sp-image" v-if="activeOgImage">
+              <img :src="activeOgImage" alt="OG Image" @error="$event.target.style.display='none'" />
             </div>
             <div class="sp-content">
               <div class="sp-domain">senugen.github.io</div>
-              <div class="sp-title">{{ seoTitle }}</div>
-              <div class="sp-desc">{{ seoDescription }}</div>
+              <div class="sp-title">{{ activeTitle }}</div>
+              <div class="sp-desc">{{ activeDescription }}</div>
             </div>
           </div>
         </div>
@@ -168,7 +191,8 @@ const copyMeta = () => {
                 transform="rotate(-90 50 50)"
                 style="transition: stroke-dasharray 0.5s ease"/>
             </svg>
-            <span class="score-text" :style="{ color: scoreColor }">{{ seoScore }}</span>
+            <span class="score-text" :style="{ color: scoreColor }" v-if="!isCalculating">{{ seoScore }}</span>
+            <span class="score-text" style="color:#999; font-size:1.4rem" v-else>...</span>
           </div>
         </div>
 
@@ -240,6 +264,28 @@ const copyMeta = () => {
   flex-direction: column;
   gap: 1.2rem;
 }
+
+.editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.2rem;
+}
+.editor-header h4 { margin: 0; font-size: 1rem; color: #333; }
+.btn-calc {
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.btn-calc:hover:not(:disabled) { background: #2980b9; transform: translateY(-1px); }
+.btn-calc:disabled { background: #bdc3c7; cursor: not-allowed; box-shadow: none; }
 
 h4 { margin: 0 0 0.8rem 0; font-size: 1rem; color: #333; }
 
