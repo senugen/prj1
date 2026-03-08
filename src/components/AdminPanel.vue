@@ -9,6 +9,8 @@ const orders = ref([]);
 const members = ref([]);
 const loading = ref(false);
 const orderSearch = ref('');
+const productSearch = ref('');
+const memberSearch = ref('');
 
 // 商品表單
 const newProduct = ref({ product_id: '', name: '', price: 0, stock: 0, status: 'active', image_url: '', description: '' });
@@ -57,6 +59,31 @@ const fetchMembers = async () => {
   members.value.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   loading.value = false;
 };
+
+const filteredProducts = computed(() => {
+  const q = productSearch.value.trim().toLowerCase();
+  if (!q) return products.value;
+  return products.value.filter(p => {
+    return String(p.product_id || '').toLowerCase().includes(q) ||
+           String(p.name || '').toLowerCase().includes(q) ||
+           String(p.price || '').includes(q) ||
+           String(p.stock || '').includes(q) ||
+           (p.status === 'active' ? '上架' : '下架').includes(q) ||
+           String(p.description || '').toLowerCase().includes(q);
+  });
+});
+
+const filteredMembers = computed(() => {
+  const q = memberSearch.value.trim().toLowerCase();
+  if (!q) return members.value;
+  return members.value.filter(m => {
+    return String(m.uid || '').toLowerCase().includes(q) ||
+           String(m.email || '').toLowerCase().includes(q) ||
+           String(m.name || '').toLowerCase().includes(q) ||
+           String(m.phone || '').toLowerCase().includes(q) ||
+           new Date(m.created_at).toLocaleString().includes(q);
+  });
+});
 
 const handleAddProduct = async () => {
   if (!newProduct.value.product_id || !newProduct.value.name) return alert('ID 與名稱必填');
@@ -161,10 +188,15 @@ const formatShippingSafe = (infoStr) => {
         </div>
 
         <h3>商品列表</h3>
+        <div class="search-bar">
+          <input v-model="productSearch" placeholder="🔍 搜尋商品（ID、名稱、價格、狀態...）" class="search-input" />
+          <span v-if="productSearch" class="search-clear" @click="productSearch = ''">✕</span>
+          <span class="search-count">{{ filteredProducts.length }} / {{ products.length }} 筆</span>
+        </div>
         <table>
           <thead><tr><th>ID</th><th>名稱</th><th>價格</th><th>庫存</th><th>狀態</th><th>圖片/描述</th><th>操作</th></tr></thead>
           <tbody>
-            <tr v-for="p in products" :key="p.product_id">
+            <tr v-for="p in filteredProducts" :key="p.product_id">
               <td>{{ p.product_id }}</td>
               <td v-if="editingId === p.product_id"><input v-model="editForm.name" class="edit-input"/></td>
               <td v-else>{{ p.name }}</td>
@@ -253,15 +285,23 @@ const formatShippingSafe = (infoStr) => {
       <!-- 會員管理區 -->
       <div v-if="currentTab === 'members'" class="tab-content">
         <h3>會員列表</h3>
+        <div class="search-bar">
+          <input v-model="memberSearch" placeholder="🔍 搜尋會員（UID、信箱、姓名、電話...）" class="search-input" />
+          <span v-if="memberSearch" class="search-clear" @click="memberSearch = ''">✕</span>
+          <span class="search-count">{{ filteredMembers.length }} / {{ members.length }} 筆</span>
+        </div>
         <table>
           <thead><tr><th>UID</th><th>信箱</th><th>姓名</th><th>電話</th><th>註冊時間</th></tr></thead>
           <tbody>
-            <tr v-for="m in members" :key="m.uid">
+            <tr v-for="m in filteredMembers" :key="m.uid">
               <td class="ecpay-no">{{ m.uid }}</td>
               <td>{{ m.email }}</td>
               <td>{{ m.name }}</td>
               <td>{{ m.phone }}</td>
               <td>{{ new Date(m.created_at).toLocaleString() }}</td>
+            </tr>
+            <tr v-if="filteredMembers.length === 0">
+              <td colspan="5" style="text-align:center; color:#999; padding:2rem;">找不到符合條件的會員</td>
             </tr>
           </tbody>
         </table>
